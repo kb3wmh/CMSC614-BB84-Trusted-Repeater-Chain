@@ -49,6 +49,7 @@ def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,proc
     MyKeyList_A=[]  # local protocol list A
     MyKeyList_B=[]  # local protocol list B
     MyKeyRateList=[]
+    ElapsedTimes = []
     
     for i in range(runtimes): 
         
@@ -139,16 +140,23 @@ def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,proc
         #simple key length calibration
         s = SequenceMatcher(None, firstKey, secondKey)# unmatched rate
         MyKeyRateList.append(len(secondKey)*s.ratio()/(endTime-startTime)*10**9) #second
+        ElapsedTimes.append((endTime-startTime))
 
         mylogger.debug("key length:{}\n".format(len(secondKey)*s.ratio()))
 
         
-    return MyKeyList_A, MyKeyList_B, MyKeyRateList
+    return MyKeyList_A, MyKeyList_B, MyKeyRateList, ElapsedTimes
 
 
 
 
+if __name__ == "__main__":
+    MyKeyList_A, MyKeyList_B, MyKeyRateList, ElapsedTimes = run_BB84_sim()
 
-
+    print(MyKeyList_A)
+    print(MyKeyList_B)
+    print(MyKeyRateList)
+    print(ElapsedTimes)
+    
 
 

@@ -12,7 +12,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
-from .util import BB84_CompareBasis
+from util import BB84_CompareBasis
 
 
 class QG_A_qPrepare(QuantumProgram):

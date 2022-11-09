@@ -1,0 +1,22 @@
+import networkx as nx
+from node import Node
+
+
+def generateTestGraph():
+    G = nx.Graph()
+
+    G.add_node(0, node=Node())
+    
+    for i in range(1, 5):
+        G.add_node(i, node=Node())
+        G.add_edge(i-1, i, weight = 10**-9) # weight = distance between node in network
+
+    return G
+
+'''
+Assumes that consecutive nodes in nodes are connected with edges
+
+returns time, compromised
+'''
+def generateRunOnPath(nodes, graph):
+    
