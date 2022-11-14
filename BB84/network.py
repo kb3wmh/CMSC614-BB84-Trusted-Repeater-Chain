@@ -1,3 +1,5 @@
+import sys
+
 import networkx as nx
 from node import QNode
 from BB84_run import run_BB84_sim
@@ -40,8 +42,54 @@ def generateRunOnPath(nodes, graph):
         
     return elapsedTime, compromisedRun
 
+def graphFromEdgeFile(filepath, default_weight=None):
+
+    G = nx.Graph()
+    my_nodes = set()
+
+    with open(filepath, 'r', encoding='utf-8') as fp:
+
+        for line in fp:
+
+            splitted = line.strip().split()
+            if len(splitted) <= 1:
+
+                continue
+
+            if len(splitted) == 2:
+
+                assert default_weight is not None
+
+                u, v = splitted
+                weight = default_weight
+
+            else:
+
+                u, v, weight = splitted[:3]
+
+            if u not in my_nodes:
+
+                G.add_node(u, qnode=QNode())
+                my_nodes.add(u)
+
+            if v not in my_nodes:
+
+                G.add_node(v, qnode=QNode())
+                my_nodes.add(v)
+
+            G.add_edge(u, v, weight=weight)
+
+    return G
+
 if __name__ == "__main__":
-    G = generateTestGraph()
+
+    if len(sys.argv) > 1:
+
+        G = graphFromEdgeFile(sys.argv[1])
+
+    else:
+
+        G = generateTestGraph()
 
     time, compromised = generateRunOnPath([0, 1, 2, 3, 4], G)
 
