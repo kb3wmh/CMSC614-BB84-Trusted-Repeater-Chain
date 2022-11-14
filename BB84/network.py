@@ -9,8 +9,10 @@ def generateTestGraph():
     
     for i in range(1, 5):
         G.add_node(i, qnode=QNode())
-        G.add_edge(i-1, i, weight = 10**-9) # weight = distance between node in network
+        G.add_edge(i-1, i, weight = 10) # weight = distance between node in network
 
+    nx.draw(G)
+    
     return G
 
 '''
@@ -25,7 +27,7 @@ def generateRunOnPath(nodes, graph):
     for i in range(0, len(nodes) - 1):
         connectionLength = graph.edges[nodes[i], nodes[i+1]]['weight']
 
-        MyKeyList_A, MyKeyList_B, MyKeyRateList, ElapsedTimes = run_BB84_sim()
+        MyKeyList_A, MyKeyList_B, MyKeyRateList, ElapsedTimes = run_BB84_sim(fibreLen=connectionLength, fibreNoise=10**5)
 
         elapsedTime += ElapsedTimes[0]
 
@@ -45,4 +47,7 @@ if __name__ == "__main__":
 
     print(time)
     print(compromised)
+
+    while True:
+        pass
         
