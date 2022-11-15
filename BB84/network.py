@@ -42,7 +42,7 @@ def generateRunOnPath(nodes, graph):
         
     return elapsedTime, compromisedRun
 
-def graphFromEdgeFile(filepath, default_weight=None):
+def graphFromEdgeFile(filepath, default_weight=None, force_int=False):
 
     G = nx.Graph()
     my_nodes = set()
@@ -66,6 +66,12 @@ def graphFromEdgeFile(filepath, default_weight=None):
             else:
 
                 u, v, weight = splitted[:3]
+                weight = int(weight)
+
+            if force_int:
+
+                u = int(u)
+                v = int(v)
 
             if u not in my_nodes:
 
