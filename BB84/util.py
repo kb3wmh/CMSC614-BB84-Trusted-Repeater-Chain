@@ -2,6 +2,8 @@ import logging
 logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
+import networkx as nx
+
 '''
 Compare two basis list, find the unmatched index, 
     then append the matched value from a list corresponded to the index.
@@ -61,3 +63,26 @@ def BB84_CompareBasis(basis1,basis2,sourceList2):
             key.append(sourceList2[i])
 
     return key
+
+def path_not_improvable(G, path):
+
+    for i in range(0, len(path) - 2):
+
+        neighbors = G[path[i]]
+
+        for j in range(i + 2, len(path)):
+
+            if path[j] in neighbors:
+
+                return False
+
+    return True
+
+def all_simple_not_improvable_paths(G, source, target, cutoff=None):
+    """
+    Returns a generator that produces not improvable paths. 
+    """
+
+    return (path for path in
+            nx.all_simple_paths(G, source=source, target=target, cutoff=cutoff)
+            if path_not_improvable(path))
