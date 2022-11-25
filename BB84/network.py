@@ -89,15 +89,17 @@ def graphFromEdgeFile(filepath, default_weight=None, force_int=False):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 3:
 
         G = graphFromEdgeFile(sys.argv[1])
+        test_path = next(nx.all_simple_paths(G, sys.argv[2], sys.argv[3]))
 
     else:
 
         G = generateTestGraph()
+        test_path = [0, 1, 2, 3, 4]
 
-    time, compromised = generateRunOnPath([0, 1, 2, 3, 4], G)
+    time, compromised = generateRunOnPath(test_path, G)
 
     print(time)
     print(compromised)

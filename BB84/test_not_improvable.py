@@ -9,7 +9,7 @@ from util import all_simple_not_improvable_paths
 
 assert len(sys.argv) > 3
 
-G = graphFromEdgeFile(sys.argv[1])
+G = graphFromEdgeFile(sys.argv[1], default_weight=1)
 source = sys.argv[2]
 target = sys.argv[3]
 
