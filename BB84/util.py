@@ -85,4 +85,4 @@ def all_simple_not_improvable_paths(G, source, target, cutoff=None):
 
     return (path for path in
             nx.all_simple_paths(G, source=source, target=target, cutoff=cutoff)
-            if path_not_improvable(path))
+            if path_not_improvable(G, path))
