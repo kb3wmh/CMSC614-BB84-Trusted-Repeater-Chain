@@ -87,11 +87,23 @@ def graphFromEdgeFile(filepath, default_weight=None, force_int=False):
     return G
 
 
-def plotGraphWithPathHighlighted(G, path=None):
+def plotGraphWithPathHighlighted(G, paths=None):
     pos=nx.spring_layout(G)
     nx.draw_networkx_nodes(G, pos=pos)
     nx.draw_networkx_labels(G, pos=pos)
 
+    arcs = nx.draw_networkx_edges(G, pos=pos)
+
+    if (paths != None):
+        for path in paths:
+            edgelist = []
+        
+            for i in range(0, len(path)-1):
+                edgelist.append((path[i], path[i+1]))
+
+            nx.draw_networkx_edges(G, pos, edgelist=edgelist, width=8, alpha=0.5, edge_color="tab:red")
+    
+    plt.savefig('graph.png')
     
     
 
@@ -112,7 +124,7 @@ if __name__ == "__main__":
     print(time)
     print(compromised)
 
-    plotGraphWithPathHighlighted(G)
+    plotGraphWithPathHighlighted(G, [[1, 2, 3]])
     
     while True:
         pass
