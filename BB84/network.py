@@ -124,7 +124,7 @@ if __name__ == "__main__":
     print(time)
     print(compromised)
 
-    plotGraphWithPathHighlighted(G, [[1, 2, 3]])
+    plotGraphWithPathHighlighted(G, [[0, 1], [2, 3, 4]])
     
     while True:
         pass
