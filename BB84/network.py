@@ -92,23 +92,34 @@ def graphFromRandom(n, p, patience, seed=123456789):
     n : int
         number of nodes
     p : float
-        fraction between 0 and 1 that determines how likely an edge is deleted
-    patient: int
-        how many incomplete graphs are encountered before quitting
+        fraction between 0 and 1 that determines how likely an edge is to be kept
+    patience: int
+        how many disconnected graphs are encountered before quitting
     seed : int
         used to make the function deterministic
     """
+
+    assert patience > 0
 
     random.seed(seed)
 
     facade_G = nx.freeze(nx.complete_graph(n))
     G = nx.Graph(facade_G)
 
+    disconnected = 0
     for u, v in facade_G.edges:
 
-        if p - random.random() > 0:
+        if p <= random.random():
 
             G.remove_edge(u, v)
+            if not nx.is_connected(G):
+
+                G.add_edge(u, v)
+
+                disconnected += 1
+                if disconnected >= patience:
+
+                    break
 
     return G
 
