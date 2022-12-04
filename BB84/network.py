@@ -1,3 +1,4 @@
+import random
 import sys
 
 import networkx as nx
@@ -86,6 +87,30 @@ def graphFromEdgeFile(filepath, default_weight=None, force_int=False):
 
     return G
 
+def graphFromRandom(n, p, patience, seed=123456789):
+    """
+    n : int
+        number of nodes
+    p : float
+        fraction between 0 and 1 that determines how likely an edge is deleted
+    patient: int
+        how many incomplete graphs are encountered before quitting
+    seed : int
+        used to make the function deterministic
+    """
+
+    random.seed(seed)
+
+    facade_G = nx.freeze(nx.complete_graph(n))
+    G = nx.Graph(facade_G)
+
+    for u, v in facade_G.edges:
+
+        if p - random.random() > 0:
+
+            G.remove_edge(u, v)
+
+    return G
 
 def plotGraphWithPathHighlighted(G, paths=None):
     pos=nx.spring_layout(G)
