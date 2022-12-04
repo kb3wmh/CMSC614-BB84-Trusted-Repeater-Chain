@@ -1,6 +1,7 @@
 import sys
 
 import networkx as nx
+import matplotlib.pyplot as plt
 from node import QNode
 from BB84_run import run_BB84_sim
 
@@ -12,8 +13,6 @@ def generateTestGraph():
     for i in range(1, 5):
         G.add_node(i, qnode=QNode())
         G.add_edge(i-1, i, weight = 10) # weight = distance between node in network
-
-    nx.draw(G)
     
     return G
 
@@ -87,6 +86,15 @@ def graphFromEdgeFile(filepath, default_weight=None, force_int=False):
 
     return G
 
+
+def plotGraphWithPathHighlighted(G, path=None):
+    pos=nx.spring_layout(G)
+    nx.draw_networkx_nodes(G, pos=pos)
+    nx.draw_networkx_labels(G, pos=pos)
+
+    
+    
+
 if __name__ == "__main__":
 
     if len(sys.argv) > 3:
@@ -104,6 +112,8 @@ if __name__ == "__main__":
     print(time)
     print(compromised)
 
+    plotGraphWithPathHighlighted(G)
+    
     while True:
         pass
         
