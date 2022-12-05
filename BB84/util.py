@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import logging
 logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
@@ -114,6 +115,51 @@ def node_not_traveled(G, source, target):
 
 def node_less_traveled(G, source, target, k):
 
-    visits = {n : 0 for n in G.nodes}
+    path_list = []
 
-    pass
+    visits = dict.fromkeys(G.nodes, 0)
+    # priority if target is a neighbor
+    visits[target] = -1
+    curr_path = OrderedDict.fromkeys([source])
+    stack = [list(G[source])]
+
+    while stack:
+
+        neighbors = stack[-1]
+
+        if not neighbors:
+
+            curr_path.popitem()
+            stack.pop()
+            continue
+
+        # visits may have changed further down in the graph
+        a_neighbor = min(neighbors, key=lambda x : visits[x])
+        neighbors.remove(a_neighbor)
+
+        # don't do a loopdy loop
+        if a_neighbor in curr_path:
+
+            continue
+
+        if a_neighbor == target:
+
+            path_list.append(list(curr_path))
+
+            for node in path_list[-1]:
+
+                visits[node] += 1
+
+            # don't update visits for target to keep it a priority
+            path_list[-1].append(target)
+
+            if len(path_list) >= k:
+
+                break
+
+            continue
+
+        curr_path[a_neighbor] = None
+        stack.append(list(G[a_neighbor]))
+
+    return path_list
