@@ -144,15 +144,13 @@ def node_less_traveled(G, source, target, k):
 
         if a_neighbor == target:
 
-            path_list.append(list(curr_path))
-
-            for node in path_list[-1]:
+            ni_path = make_path_not_improvable(G, list(curr_path.keys()) + target)
+            # don't update visits for target to keep it a priority
+            for node in ni_path[:-1]:
 
                 visits[node] += 1
 
-            # don't update visits for target to keep it a priority
-            path_list[-1].append(target)
-
+            path_list.append(ni_path)
             if len(path_list) >= k:
 
                 break
