@@ -86,3 +86,34 @@ def all_simple_not_improvable_paths(G, source, target, cutoff=None):
     return (path for path in
             nx.all_simple_paths(G, source=source, target=target, cutoff=cutoff)
             if path_not_improvable(G, path))
+
+def make_path_not_improvable(G, path):
+
+    ni_path = [path[0]]
+
+    i = 0
+    while i < len(path) - 1:
+
+        neighbors = G[path[i]]
+        # reversal very important
+        for j in reversed(range(i + 2, len(path))):
+
+            if path[j] in neighbors:
+
+                i = j - 1
+                break
+
+        i += 1
+        ni_path.append(path[i])
+
+    return ni_path
+
+def node_not_traveled(G, source, target):
+
+    pass
+
+def node_less_traveled(G, source, target, k):
+
+    visits = {n : 0 for n in G.nodes}
+
+    pass
