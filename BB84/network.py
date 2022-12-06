@@ -5,6 +5,18 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from node import QNode
 from BB84_run import run_BB84_sim
+import math
+
+
+'''
+All paths
+All non-improvable paths
+
+k Randomly selected non-improvable paths
+
+"fancy algorithms"
+'''
+
 
 def generateTestGraph():
     G = nx.Graph()
@@ -123,11 +135,13 @@ def graphFromRandom(n, p, patience, seed=123456789):
 
     return G
 
-def plotGraphWithPathHighlighted(G, paths=None):
-    pos=nx.spring_layout(G)
+def plotGraphWithPathHighlighted(G, paths=None, pos=None):
+    if (pos == None):
+        pos=nx.kamada_kawai_layout(G)
+
     nx.draw_networkx_nodes(G, pos=pos)
     nx.draw_networkx_labels(G, pos=pos)
-
+    
     arcs = nx.draw_networkx_edges(G, pos=pos)
 
     if (paths != None):
@@ -140,11 +154,101 @@ def plotGraphWithPathHighlighted(G, paths=None):
             nx.draw_networkx_edges(G, pos, edgelist=edgelist, width=8, alpha=0.5, edge_color="tab:red")
     
     plt.savefig('graph.png')
-    
-    
+
+
+
+def updateWeightsUsingLayout(G, pos, minDistKm=1, maxDistKm=10):
+    minGraphDist = math.inf
+    maxGraphDist = -1
+
+    for nodeA, nodeB in G.edges():
+        posA = pos[nodeA]
+        posB = pos[nodeB]
+
+        dist = math.sqrt((posA[0] - posB[0])**2 + (posA[1] - posB[1])**2)
+
+        G.edges[nodeA, nodeB]['weight'] = dist
+
+        if (dist > maxGraphDist):
+            maxGraphDist = dist
+
+        if (dist < minGraphDist):
+            minGraphDist = dist
+
+    slope = (maxDistKm - minDistKm)/(maxGraphDist - minGraphDist)
+    transform = lambda x: slope * (x - minGraphDist) + minDistKm
+
+    for nodeA, nodeB in G.edges():
+        G.edges[nodeA, nodeB]['weight'] = transform(G.edges[nodeA, nodeB]['weight'])
+
+
+def compromiseNodes(G, numToCompromise):
+    for node in G.nodes:
+        G.nodes[node]['qnode'] = QNode()
+
+
+    for node in random.sample(G.nodes, numToCompromise):
+        G.nodes[node]['qnode'].compromise()
+
+        
+def testForCompromisedKey(G, paths):
+    for path in paths:
+        compromisedPath = False
+        
+        for node in path:
+            if G.nodes[node]['qnode'].isCompromised():
+                compromisedPath = True
+                break
+
+        if not compromisedPath:
+            return False
+
+    return True
+
+def generateSimplePaths(G, startNode, endNode, numToGenerate=math.inf):
+    pathGenerator = nx.all_simple_paths(G, startNode, endNode)
+    paths = []
+    count = 0
+
+    for path in pathGenerator:
+        if count > numToGenerate:
+            break
+        
+        paths.append(path)
+        count += 1
+
+    return paths
+
+def randomlySelectPaths(paths, num):
+    return random.sample(paths, num)
+
+def generateNonImprovablePaths(G, paths):
+    improvedPaths = []
+
+    for path in paths:
+        i = 0
+        isImprovable = False
+        
+        for node in path:
+            for edge in G.edges(node):
+                if edge[1] in path[i+2:]:
+                    isImprovable = True
+                    break
+
+            i += 1
+            
+            if isImprovable:
+                break
+
+        if not isImprovable:
+            improvedPaths.append(path)
+
+    return improvedPaths
+                    
+
 
 if __name__ == "__main__":
-
+    
     if len(sys.argv) > 3:
 
         G = graphFromEdgeFile(sys.argv[1])
@@ -160,8 +264,26 @@ if __name__ == "__main__":
     print(time)
     print(compromised)
 
-    plotGraphWithPathHighlighted(G, [[0, 1], [2, 3, 4]])
-    
-    while True:
-        pass
+    for i in range(1):
+        randGraph = graphFromRandom(50, .03, 999999999999, seed=77)
+
+        pos = nx.kamada_kawai_layout(randGraph)
+
+        paths=generateSimplePaths(randGraph, 16, 34)
+
+        plotGraphWithPathHighlighted(randGraph, pos=pos, paths=paths)
+
+        updateWeightsUsingLayout(randGraph, pos)
+        compromiseNodes(randGraph, 5)
+
+        print(generateNonImprovablePaths(randGraph, paths))
+        
+        print(testForCompromisedKey(randGraph, paths))
+        
+        
+
+
+    plt.show()
+        
+    print("Done")
         

@@ -3,5 +3,8 @@ class QNode:
         self.compromised = compromised
 
 
+    def compromise(self):
+        self.compromised = True
+    
     def isCompromised(self):
         return self.compromised
