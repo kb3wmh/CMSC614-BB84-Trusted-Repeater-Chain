@@ -201,49 +201,66 @@ def node_less_traveled(G, source, target, k):
     visits = dict.fromkeys(G.nodes, 0)
     # priority if target is a neighbor
     visits[target] = -1
-    curr_path = OrderedDict.fromkeys([source])
-    stack = [list(G[source])]
 
-    while stack:
+    def dfs():
 
-        neighbors = stack[-1]
+        curr_path = OrderedDict.fromkeys([source])
+        curr_path_frontier = set()
+        stack = [(set(G[source]), set())]
 
-        if not neighbors:
+        while stack:
 
-            curr_path.popitem()
-            stack.pop()
-            continue
+            neighbors = stack[-1][0]
 
-        # visits may have changed further down in the graph
-        a_neighbor = min(neighbors, key=lambda x : visits[x])
-        neighbors.remove(a_neighbor)
+            if not neighbors:
 
-        # don't do a loopdy loop
-        if a_neighbor in curr_path:
+                curr_path.popitem()
+                curr_path_frontier -= stack[-1][1]
+                stack.pop()
+                continue
 
-            continue
+            parent_neighbors = neighbors.copy()
 
-        if a_neighbor == target:
+            # visits may have changed further down in the graph
+            a_neighbor = min(neighbors, key=lambda x : visits[x])
+            neighbors.remove(a_neighbor)
 
-            ni_path = tuple(make_path_not_improvable(G, list(curr_path.keys()) + [target]))
-
-            if ni_path in path_set:
+            # don't do a loopdy loop
+            if a_neighbor in curr_path:
 
                 continue
 
-            # don't update visits for target to keep it a priority
-            for node in ni_path[:-1]:
+            if a_neighbor == target:
 
-                visits[node] += 1
+                the_path = tuple(curr_path.keys())
 
-            path_set.add(ni_path)
-            if len(path_set) >= k:
+                for node in the_path:
 
-                break
+                    visits[node] += 1
+
+                # don't update visits for target to keep it a priority
+                return the_path + (target, )
+
+            curr_path[a_neighbor] = None
+            curr_path_frontier |= parent_neighbors
+            stack.append((set(G[a_neighbor]) - curr_path_frontier, parent_neighbors))
+
+        return None
+
+    i = 0
+    while i < k:
+
+        the_path = dfs()
+
+        if the_path is None:
+
+            return False, path_set
+
+        if the_path in path_set:
 
             continue
 
-        curr_path[a_neighbor] = None
-        stack.append(list(G[a_neighbor]))
+        path_set.add(the_path)
+        i += 1
 
-    return path_set
+    return True, path_set
