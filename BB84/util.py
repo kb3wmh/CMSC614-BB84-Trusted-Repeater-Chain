@@ -109,9 +109,90 @@ def make_path_not_improvable(G, path):
 
     return ni_path
 
-def node_not_traveled(G, source, target):
+def node_not_traveled(G, source, target, k, fast_fail=False):
+    """
+    fast_fail : bool
+        If true, then function returns (success, latest path_set).
+        Else this function returns path_set (same as node_less_traveled).
+        False by default.
+    """
 
-    pass
+    path_set = set()
+
+    visits = dict.fromkeys(G.nodes, 0)
+    # priority if target is a neighbor
+    visits[target] = -1
+    curr_path = OrderedDict.fromkeys([source])
+    stack = [list(G[source])]
+
+    while stack:
+
+        neighbors = stack[-1]
+
+        if not neighbors:
+
+            curr_path.popitem()
+            stack.pop()
+            continue
+
+        # visits may have changed further down in the graph
+        a_neighbor = min(neighbors, key=lambda x : visits[x])
+
+        # lower bound is at least 2 => we can ignore all neighbors
+        if visits[a_neighbor] >= 2:
+
+            # TODO: I'm not sure if this is intended
+            if fast_fail:
+
+                return False, path_set 
+
+            curr_path.popitem()
+            stack.pop()
+            continue
+
+        neighbors.remove(a_neighbor)
+
+        # don't do a loopdy loop
+        if a_neighbor in curr_path:
+
+            continue
+
+        if a_neighbor == target:
+
+            ni_path = tuple(make_path_not_improvable(G, list(curr_path.keys()) + [target]))
+
+            if any(visits[node] >= 2 for node in ni_path[1:-1]):
+
+                if fast_fail:
+
+                    return False, path_set 
+
+                continue
+
+            if ni_path in path_set:
+
+                continue
+
+            # don't update visits for target to keep it a priority
+            for node in ni_path[:-1]:
+
+                visits[node] += 1
+
+            path_set.add(ni_path)
+            if len(path_set) >= k:
+
+                break
+
+            continue
+
+        curr_path[a_neighbor] = None
+        stack.append(list(G[a_neighbor]))
+
+    if fast_fail:
+
+        return len(path_set) == k, path_set
+
+    return path_set
 
 def node_less_traveled(G, source, target, k):
 
@@ -146,12 +227,15 @@ def node_less_traveled(G, source, target, k):
 
             ni_path = tuple(make_path_not_improvable(G, list(curr_path.keys()) + [target]))
 
+            if ni_path in path_set:
+
+                continue
+
             # don't update visits for target to keep it a priority
             for node in ni_path[:-1]:
 
                 visits[node] += 1
 
-            # it is possible for (ni_path in path_set) == True
             path_set.add(ni_path)
             if len(path_set) >= k:
 
