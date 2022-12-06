@@ -115,7 +115,7 @@ def node_not_traveled(G, source, target):
 
 def node_less_traveled(G, source, target, k):
 
-    path_set = {}
+    path_set = set()
 
     visits = dict.fromkeys(G.nodes, 0)
     # priority if target is a neighbor
@@ -144,7 +144,7 @@ def node_less_traveled(G, source, target, k):
 
         if a_neighbor == target:
 
-            ni_path = make_path_not_improvable(G, tuple(curr_path.keys()) + (target, ))
+            ni_path = tuple(make_path_not_improvable(G, list(curr_path.keys()) + [target]))
 
             # don't update visits for target to keep it a priority
             for node in ni_path[:-1]:
