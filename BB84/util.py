@@ -109,7 +109,7 @@ def make_path_not_improvable(G, path):
 
     return ni_path
 
-def node_not_traveled(G, source, target, k, fast_fail=False):
+def node_not_taken(G, source, target, k, fast_fail=False):
     """
     fast_fail : bool
         If true, then function returns (success, latest path_set).
