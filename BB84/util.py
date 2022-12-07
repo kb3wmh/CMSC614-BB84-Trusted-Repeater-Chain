@@ -195,8 +195,9 @@ def node_not_taken(G, source, target, k, fast_fail=False):
     return path_set
 
 def node_less_traveled(G, source, target, k):
-
-    path_set = set()
+    """
+    Returns a tuple (success, path_set).
+    """
 
     visits = dict.fromkeys(G.nodes, 0)
     # priority if target is a neighbor
@@ -204,35 +205,25 @@ def node_less_traveled(G, source, target, k):
 
     def dfs():
 
-        curr_path = OrderedDict.fromkeys([source])
-        curr_path_frontier = set()
-        stack = [(set(G[source]), set())]
+        unvisited_neighbors = set(G[source])
+        do_not_visit = unvisited_neighbors.copy()
+        stack = [(source, unvisited_neighbors, do_not_visit)]
 
         while stack:
 
-            neighbors = stack[-1][0]
+            _, unvisited_neighbors, do_not_visit = stack[-1]
 
-            if not neighbors:
+            if not unvisited_neighbors:
 
-                curr_path.popitem()
-                curr_path_frontier -= stack[-1][1]
                 stack.pop()
                 continue
 
-            parent_neighbors = neighbors.copy()
-
-            # visits may have changed further down in the graph
-            a_neighbor = min(neighbors, key=lambda x : visits[x])
-            neighbors.remove(a_neighbor)
-
-            # don't do a loopdy loop
-            if a_neighbor in curr_path:
-
-                continue
+            a_neighbor = min(unvisited_neighbors, key=lambda x : visits[x])
+            unvisited_neighbors.remove(a_neighbor)
 
             if a_neighbor == target:
 
-                the_path = tuple(curr_path.keys())
+                the_path = tuple(node for node, _, _ in stack)
 
                 for node in the_path:
 
@@ -241,14 +232,16 @@ def node_less_traveled(G, source, target, k):
                 # don't update visits for target to keep it a priority
                 return the_path + (target, )
 
-            curr_path[a_neighbor] = None
-            curr_path_frontier |= parent_neighbors
-            stack.append((set(G[a_neighbor]) - curr_path_frontier, parent_neighbors))
+            a_neighbor_neighbors = set(G[a_neighbor])
+            stack.append((
+                a_neighbor, a_neighbor_neighbors - do_not_visit, do_not_visit | a_neighbor_neighbors
+            ))
 
         return None
 
-    i = 0
-    while i < k:
+    path_set = set()
+
+    while len(path_set) < k:
 
         the_path = dfs()
 
@@ -256,11 +249,6 @@ def node_less_traveled(G, source, target, k):
 
             return False, path_set
 
-        if the_path in path_set:
-
-            continue
-
         path_set.add(the_path)
-        i += 1
 
     return True, path_set
