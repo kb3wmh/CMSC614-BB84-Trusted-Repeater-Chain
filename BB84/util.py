@@ -84,17 +84,15 @@ def path_not_improvable_using_sets(G, path):
     This function assumes path[i] and path[i + 1] are connected.
     """
 
-    grand_inquisitor = set([path[0]])
+    grand_inquisitor = set()
 
-    for node in path[1:]:
+    for i in range(2, len(path)):
 
-        inquiry = set(G[node])
+        grand_inquisitor |= set(G[path[i - 2]])
 
-        if len(grand_inquisitor | inquiry) - len(grand_inquisitor) < len(inquiry) - 1:
+        if path[i] in grand_inquisitor:
 
             return False
-
-        grand_inquisitor.add(node)
 
     return True
 
@@ -188,10 +186,7 @@ def node_not_taken(G, source, target, k):
     def dfs():
 
         curr_path = OrderedDict.fromkeys([source])
-
-        unvisited_neighbors = set(G[source])
-        do_not_visit = unvisited_neighbors.copy()
-        stack = [(unvisited_neighbors, do_not_visit)]
+        stack = [(list(G[source]), set(G[source]))]
 
         while stack:
 
@@ -203,16 +198,7 @@ def node_not_taken(G, source, target, k):
                 stack.pop()
                 continue
 
-            neighbor = min(unvisited_neighbors, key=lambda x : visits[x])
-
-             # lower bound is at least 2 => we can ignore all neighbors
-            if visits[neighbor] >= 2:
-
-                curr_path.popitem()
-                stack.pop()
-                continue
-
-            unvisited_neighbors.remove(neighbor)
+            neighbor = unvisited_neighbors.pop()
 
             # don't do a loopdy loop
             if neighbor in curr_path:
@@ -234,7 +220,8 @@ def node_not_taken(G, source, target, k):
 
             neighbor_neighbors = set(G[neighbor])
             stack.append((
-                neighbor_neighbors - do_not_visit, do_not_visit | neighbor_neighbors
+                [n for n in (neighbor_neighbors - do_not_visit) if visits[n] < 2],
+                do_not_visit | neighbor_neighbors
             ))
 
         return None
