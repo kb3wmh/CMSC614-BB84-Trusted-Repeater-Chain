@@ -186,7 +186,7 @@ def node_not_taken(G, source, target, k):
     def dfs():
 
         curr_path = OrderedDict.fromkeys([source])
-        stack = [(list(G[source]), set(G[source]))]
+        stack = [([n for n in G[source] if visits[n] < 2], set(G[source]))]
 
         while stack:
 
