@@ -121,9 +121,93 @@ def test_security_nonimprovable_sample():
         for row in result:
             resultWriter.writerow(row)
 
+
+def test_security_nnt():
+    minNodes = 5
+    maxNodes = 20
+    numTrials = 1000
+
+    numPaths = 5
+
+    heading = ["Num Nodes", ".05", ".10", ".15", ".20"]
+
+    result = []
+
+    for node in range(minNodes, maxNodes + 1):
+        print("Number of nodes: " + str(node))
+        compromiseProbabilities = [node]
         
+        for compromiseProbability in range(5, 25, 5):
+            compromiseCount = 0
+        
+            for i in range(0, numTrials):
+                G = graphFromRandom(node, 4/(node-1), 99999999999, seed=(node + compromiseProbability + i))
+                targetNodes = random.sample(G.nodes(), 2)
+                
+                compromiseNodesWithProbabilityP(G, compromiseProbability/100, targetNodes[0], targetNodes[1])
+                
+                success, paths = node_not_taken(G, targetNodes[0], targetNodes[1], numPaths)
+                
+                if testForCompromisedKey(G, paths):
+                    compromiseCount += 1
+
+            compromiseProbabilities.append(compromiseCount / numTrials)
+
+        result.append(compromiseProbabilities)
+
+    outputCSVFilename = "test_security_node_not_taken.csv"
+
+    with open(outputCSVFilename, 'w', newline='') as csvfile:
+        resultWriter = csv.writer(csvfile)
+        resultWriter.writerow(heading)
+
+        for row in result:
+            resultWriter.writerow(row)
+
+def test_security_nlt():
+    minNodes = 5
+    maxNodes = 20
+    numTrials = 1000
+
+    numPaths = 5
+
+    heading = ["Num Nodes", ".05", ".10", ".15", ".20"]
+
+    result = []
+
+    for node in range(minNodes, maxNodes + 1):
+        print("Number of nodes: " + str(node))
+        compromiseProbabilities = [node]
+        
+        for compromiseProbability in range(5, 25, 5):
+            compromiseCount = 0
+        
+            for i in range(0, numTrials):
+                G = graphFromRandom(node, 4/(node-1), 99999999999, seed=(node + compromiseProbability + i))
+                targetNodes = random.sample(G.nodes(), 2)
+                
+                compromiseNodesWithProbabilityP(G, compromiseProbability/100, targetNodes[0], targetNodes[1])
+                
+                success, paths = node_less_traveled(G, targetNodes[0], targetNodes[1], numPaths)
+                
+                if testForCompromisedKey(G, paths):
+                    compromiseCount += 1
+
+            compromiseProbabilities.append(compromiseCount / numTrials)
+
+        result.append(compromiseProbabilities)
+
+    outputCSVFilename = "test_security_node_less_travelled.csv"
+
+    with open(outputCSVFilename, 'w', newline='') as csvfile:
+        resultWriter = csv.writer(csvfile)
+        resultWriter.writerow(heading)
+
+        for row in result:
+            resultWriter.writerow(row)
+
             
             
 if __name__ == "__main__":
-    test_security_nonimprovable_sample()
+    test_security_nlt()
     
