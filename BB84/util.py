@@ -136,8 +136,7 @@ def all_simple_not_improvable_paths_using_dfs(G, source, target, cutoff=None):
             stack.pop()
             continue
 
-        neighbor = min(unvisited_neighbors, key=lambda x : visits[x])
-        unvisited_neighbors.remove(neighbor)
+        neighbor = unvisited_neighbors.pop()
 
         # don't do a loopdy loop
         if neighbor in curr_path:
@@ -153,7 +152,7 @@ def all_simple_not_improvable_paths_using_dfs(G, source, target, cutoff=None):
 
         neighbor_neighbors = set(G[neighbor])
         stack.append((
-            neighbor_neighbors - do_not_visit, do_not_visit | neighbor_neighbors
+            list(neighbor_neighbors - do_not_visit), do_not_visit | neighbor_neighbors
         ))
 
 def make_path_not_improvable(G, path):
