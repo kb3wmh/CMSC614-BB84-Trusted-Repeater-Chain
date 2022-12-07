@@ -205,7 +205,10 @@ def node_not_taken(G, source, target, k):
 
                 continue
 
-            if neighbor == target:
+            curr_path[neighbor] = None
+            neighbor_neighbors = set(G[neighbor])
+
+            if target in neighbor_neighbors:
 
                 the_path = tuple(curr_path.keys())
 
@@ -216,9 +219,6 @@ def node_not_taken(G, source, target, k):
                 # don't update visits for target to keep it a priority
                 return the_path + (target, )
 
-            curr_path[neighbor] = None
-
-            neighbor_neighbors = set(G[neighbor])
             stack.append((
                 [n for n in (neighbor_neighbors - do_not_visit) if visits[n] < 2],
                 do_not_visit | neighbor_neighbors
@@ -237,8 +237,7 @@ def node_not_taken(G, source, target, k):
 
         path_list.append(the_path)
 
-    path_set = set(path_list)
-    return len(path_set) == k, path_set
+    return True, set(path_list)
 
 def node_less_traveled(G, source, target, k):
     """
@@ -306,5 +305,4 @@ def node_less_traveled(G, source, target, k):
 
         path_list.append(the_path)
 
-    path_set = set(path_list)
-    return len(path_set) == k, path_set
+    return True, set(path_list)
