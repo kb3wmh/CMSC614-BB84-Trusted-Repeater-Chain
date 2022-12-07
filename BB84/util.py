@@ -79,6 +79,25 @@ def path_not_improvable(G, path):
 
     return True
 
+def path_not_improvable_using_sets(G, path):
+    """
+    This function assumes path[i] and path[i + 1] are connected.
+    """
+
+    grand_inquisitor = set([path[0]])
+
+    for node in path[1:]:
+
+        inquiry = set(G[node])
+
+        if len(grand_inquisitor | inquiry) - len(grand_inquisitor) < len(inquiry) - 1:
+
+            return False
+
+        grand_inquisitor.add(node)
+
+    return True
+
 def all_simple_not_improvable_paths(G, source, target, cutoff=None):
     """
     Returns a generator that produces not improvable paths. 
@@ -87,6 +106,54 @@ def all_simple_not_improvable_paths(G, source, target, cutoff=None):
     return (path for path in
             nx.all_simple_paths(G, source=source, target=target, cutoff=cutoff)
             if path_not_improvable(G, path))
+
+def all_simple_not_improvable_paths_using_sets(G, source, target, cutoff=None):
+
+    return (path for path in
+            nx.all_simple_paths(G, source=source, target=target, cutoff=cutoff)
+            if path_not_improvable_using_sets(G, path))
+
+def all_simple_not_improvable_paths_using_dfs(G, source, target, cutoff=None):
+    """
+    This function is a GENERATOR.
+    It does not return anything.
+    Usage: list(all_simple_not_improvable_paths_using_dfs(...))
+    """
+
+    curr_path = OrderedDict.fromkeys([source])
+
+    unvisited_neighbors = set(G[source])
+    do_not_visit = unvisited_neighbors.copy()
+    stack = [(unvisited_neighbors, do_not_visit)]
+
+    while stack:
+
+        unvisited_neighbors, do_not_visit = stack[-1]
+
+        if not unvisited_neighbors or (cutoff is not None and len(stack) - 1 <= cutoff):
+
+            curr_path.popitem()
+            stack.pop()
+            continue
+
+        neighbor = unvisited_neighbors.pop()
+
+        # don't do a loopdy loop
+        if neighbor in curr_path:
+
+            continue
+
+        if neighbor == target:
+
+            yield tuple(curr_path.keys()) + (target, )
+            continue
+
+        curr_path[neighbor] = None
+
+        neighbor_neighbors = set(G[neighbor])
+        stack.append((
+            list(neighbor_neighbors - do_not_visit), do_not_visit | neighbor_neighbors
+        ))
 
 def make_path_not_improvable(G, path):
 
@@ -249,16 +316,16 @@ def node_less_traveled(G, source, target, k):
 
         return None
 
-    path_set = set()
-
-    while len(path_set) < k:
+    path_list = []
+    for _ in range(k):
 
         the_path = dfs()
 
         if the_path is None:
 
-            return False, path_set
+            return False, set(path_list)
 
-        path_set.add(the_path)
+        path_list.append(the_path)
 
-    return True, path_set
+    path_set = set(path_list)
+    return len(path_set) == k, path_set
