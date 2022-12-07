@@ -176,90 +176,82 @@ def make_path_not_improvable(G, path):
 
     return ni_path
 
-def node_not_taken(G, source, target, k, fast_fail=False):
+def node_not_taken(G, source, target, k):
     """
-    fast_fail : bool
-        If true, then function returns (success, latest path_set).
-        Else this function returns path_set (same as node_less_traveled).
-        False by default.
+    Returns a tuple (success, path_set).
     """
-
-    path_set = set()
 
     visits = dict.fromkeys(G.nodes, 0)
     # priority if target is a neighbor
     visits[target] = -1
-    curr_path = OrderedDict.fromkeys([source])
-    stack = [list(G[source])]
 
-    while stack:
+    def dfs():
 
-        neighbors = stack[-1]
+        curr_path = OrderedDict.fromkeys([source])
 
-        if not neighbors:
+        unvisited_neighbors = set(G[source])
+        do_not_visit = unvisited_neighbors.copy()
+        stack = [(unvisited_neighbors, do_not_visit)]
 
-            curr_path.popitem()
-            stack.pop()
-            continue
+        while stack:
 
-        # visits may have changed further down in the graph
-        a_neighbor = min(neighbors, key=lambda x : visits[x])
+            unvisited_neighbors, do_not_visit = stack[-1]
 
-        # lower bound is at least 2 => we can ignore all neighbors
-        if visits[a_neighbor] >= 2:
+            if not unvisited_neighbors:
 
-            # TODO: I'm not sure if this is intended
-            if fast_fail:
+                curr_path.popitem()
+                stack.pop()
+                continue
 
-                return False, path_set 
+            neighbor = min(unvisited_neighbors, key=lambda x : visits[x])
 
-            curr_path.popitem()
-            stack.pop()
-            continue
+             # lower bound is at least 2 => we can ignore all neighbors
+            if visits[neighbor] >= 2:
 
-        neighbors.remove(a_neighbor)
+                curr_path.popitem()
+                stack.pop()
+                continue
 
-        # don't do a loopdy loop
-        if a_neighbor in curr_path:
+            unvisited_neighbors.remove(neighbor)
 
-            continue
-
-        if a_neighbor == target:
-
-            ni_path = tuple(make_path_not_improvable(G, list(curr_path.keys()) + [target]))
-
-            if any(visits[node] >= 2 for node in ni_path[1:-1]):
-
-                if fast_fail:
-
-                    return False, path_set 
+            # don't do a loopdy loop
+            if neighbor in curr_path:
 
                 continue
 
-            if ni_path in path_set:
+            if neighbor == target:
 
-                continue
+                the_path = tuple(curr_path.keys())
 
-            # don't update visits for target to keep it a priority
-            for node in ni_path[:-1]:
+                for node in the_path:
 
-                visits[node] += 1
+                    visits[node] += 1
 
-            path_set.add(ni_path)
-            if len(path_set) >= k:
+                # don't update visits for target to keep it a priority
+                return the_path + (target, )
 
-                break
+            curr_path[neighbor] = None
 
-            continue
+            neighbor_neighbors = set(G[neighbor])
+            stack.append((
+                neighbor_neighbors - do_not_visit, do_not_visit | neighbor_neighbors
+            ))
 
-        curr_path[a_neighbor] = None
-        stack.append(list(G[a_neighbor]))
+        return None
 
-    if fast_fail:
+    path_list = []
+    for _ in range(k):
 
-        return len(path_set) == k, path_set
+        the_path = dfs()
 
-    return path_set
+        if the_path is None:
+
+            return False, set(path_list)
+
+        path_list.append(the_path)
+
+    path_set = set(path_list)
+    return len(path_set) == k, path_set
 
 def node_less_traveled(G, source, target, k):
     """
