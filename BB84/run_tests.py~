@@ -1,0 +1,7 @@
+import network
+
+if __name__ == "__main__":
+    minNodes = 5
+    maxNodes = 7
+
+    averageFractions, averageSimplePaths, averageNonImprovablePaths = calculateNonImprovableFractions(minNodes, maxNodes)

@@ -246,7 +246,7 @@ def generateNonImprovablePaths(G, paths):
     return improvedPaths
                     
 
-def calculateNonImprovableFractions(minNodes, maxNodes, edgesKeepFunc=(lambda x: 0.5)):
+def calculateNonImprovableFractions(minNodes, maxNodes, edgesKeepFunc=(lambda x: 5.75/(x-1))):
     averageFractions = []
     averageSimplePaths = []
     averageNonImprovablePaths = []
@@ -258,8 +258,13 @@ def calculateNonImprovableFractions(minNodes, maxNodes, edgesKeepFunc=(lambda x:
         
         numTrials = 20
 
+        print("Nodes: " + str(node))
+
+        print("Edges to keep: " + str(edgesKeepFunc(node)))
         
         for i in range(0, numTrials):
+            print("Trial number: " + str(i))
+            
             nextGraph = graphFromRandom(node, edgesKeepFunc(node), 999999999999, seed=(node + i))
             pos = nx.kamada_kawai_layout(nextGraph)
             
@@ -298,7 +303,7 @@ if __name__ == "__main__":
     print(compromised)
 
     for i in range(1):
-        randGraph = graphFromRandom(22, .25, 999999999999, seed=77)
+        randGraph = graphFromRandom(22, .21, 999999999999, seed=77)
 
         pos = nx.kamada_kawai_layout(randGraph)
 
@@ -307,6 +312,7 @@ if __name__ == "__main__":
         print(len(paths))
 
         updateWeightsUsingLayout(randGraph, pos)
+
         compromiseNodes(randGraph, 5)
 
         nonImprovablePaths = generateNonImprovablePaths(randGraph, paths)
