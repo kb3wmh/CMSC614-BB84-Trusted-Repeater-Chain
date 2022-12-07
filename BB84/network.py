@@ -190,6 +190,21 @@ def compromiseNodes(G, numToCompromise):
     for node in random.sample(G.nodes, numToCompromise):
         G.nodes[node]['qnode'].compromise()
 
+def compromiseNodesWithProbabilityP(G, probability, startNode, endNode, seed=None):
+    if (seed != None):
+        random.seed = seed
+
+    G.nodes[startNode]['qnode'] = QNode()
+    G.nodes[endNode]['qnode'] = QNode()
+        
+    for node in G.nodes:
+        if (node != startNode) and (node != endNode):
+            compromised = False
+
+            if random.random() < probability:
+                compromised = True
+
+            G.nodes[node]['qnode'] = QNode(compromised=compromised)
         
 def testForCompromisedKey(G, paths):
     for path in paths:

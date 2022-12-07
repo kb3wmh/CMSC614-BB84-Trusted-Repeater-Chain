@@ -1,0 +1,9 @@
+from util import *
+from network import *
+
+if __name__ == "__main__":
+    G = graphFromRandom(15, 4/14, 999999999999, seed=777)
+
+    allSimplePaths = generateSimplePaths(G, 1, 2)
+
+    print(len(allSimplePaths)
