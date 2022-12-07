@@ -84,17 +84,15 @@ def path_not_improvable_using_sets(G, path):
     This function assumes path[i] and path[i + 1] are connected.
     """
 
-    grand_inquisitor = set([path[0]])
+    grand_inquisitor = set()
 
-    for node in path[1:]:
+    for i in range(2, len(path)):
 
-        inquiry = set(G[node])
+        grand_inquisitor |= set(G[path[i - 2]])
 
-        if len(grand_inquisitor | inquiry) - len(grand_inquisitor) < len(inquiry) - 1:
+        if path[i] in grand_inquisitor:
 
             return False
-
-        grand_inquisitor.add(node)
 
     return True
 
