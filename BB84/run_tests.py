@@ -34,7 +34,7 @@ def test_all_vs_simple_fractions():
 
 def test_security_nonimprovable():
     minNodes = 5
-    maxNodes = 20
+    maxNodes = 40
     numTrials = 1000
 
     heading = ["Num Nodes", ".05", ".10", ".15", ".20"]
@@ -62,6 +62,7 @@ def test_security_nonimprovable():
             compromiseProbabilities.append(compromiseCount / numTrials)
 
         result.append(compromiseProbabilities)
+        print(compromiseProbabilities)
 
     outputCSVFilename = "test_security_nonimprovable.csv"
 
@@ -76,7 +77,7 @@ def test_security_nonimprovable():
 
 def test_security_nonimprovable_sample():
     minNodes = 5
-    maxNodes = 20
+    maxNodes = 40
     numTrials = 1000
     numPaths = 5
 
@@ -111,6 +112,7 @@ def test_security_nonimprovable_sample():
             compromiseProbabilities.append(compromiseCount / numTrials)
 
         result.append(compromiseProbabilities)
+        print(compromiseProbabilities)
 
     outputCSVFilename = "test_security_nonimprovable_sample.csv"
 
@@ -124,7 +126,7 @@ def test_security_nonimprovable_sample():
 
 def test_security_nnt():
     minNodes = 5
-    maxNodes = 20
+    maxNodes = 40
     numTrials = 1000
 
     numPaths = 5
@@ -154,6 +156,7 @@ def test_security_nnt():
             compromiseProbabilities.append(compromiseCount / numTrials)
 
         result.append(compromiseProbabilities)
+        print(compromiseProbabilities)
 
     outputCSVFilename = "test_security_node_not_taken.csv"
 
@@ -166,7 +169,7 @@ def test_security_nnt():
 
 def test_security_nlt():
     minNodes = 5
-    maxNodes = 20
+    maxNodes = 40
     numTrials = 1000
 
     numPaths = 5
@@ -196,6 +199,7 @@ def test_security_nlt():
             compromiseProbabilities.append(compromiseCount / numTrials)
 
         result.append(compromiseProbabilities)
+        print(compromiseProbabilities)
 
     outputCSVFilename = "test_security_node_less_travelled.csv"
 
@@ -209,5 +213,8 @@ def test_security_nlt():
             
             
 if __name__ == "__main__":
+    test_security_nonimprovable()
+    test_security_nonimprovable_sample()
+    test_security_nnt()
     test_security_nlt()
     
