@@ -205,25 +205,33 @@ def node_less_traveled(G, source, target, k):
 
     def dfs():
 
+        curr_path = OrderedDict.fromkeys([source])
+
         unvisited_neighbors = set(G[source])
         do_not_visit = unvisited_neighbors.copy()
-        stack = [(source, unvisited_neighbors, do_not_visit)]
+        stack = [(unvisited_neighbors, do_not_visit)]
 
         while stack:
 
-            _, unvisited_neighbors, do_not_visit = stack[-1]
+            unvisited_neighbors, do_not_visit = stack[-1]
 
             if not unvisited_neighbors:
 
+                curr_path.popitem()
                 stack.pop()
                 continue
 
-            a_neighbor = min(unvisited_neighbors, key=lambda x : visits[x])
-            unvisited_neighbors.remove(a_neighbor)
+            neighbor = min(unvisited_neighbors, key=lambda x : visits[x])
+            unvisited_neighbors.remove(neighbor)
 
-            if a_neighbor == target:
+            # don't do a loopdy loop
+            if neighbor in curr_path:
 
-                the_path = tuple(node for node, _, _ in stack)
+                continue
+
+            if neighbor == target:
+
+                the_path = tuple(curr_path.keys())
 
                 for node in the_path:
 
@@ -232,9 +240,11 @@ def node_less_traveled(G, source, target, k):
                 # don't update visits for target to keep it a priority
                 return the_path + (target, )
 
-            a_neighbor_neighbors = set(G[a_neighbor])
+            curr_path[neighbor] = None
+
+            neighbor_neighbors = set(G[neighbor])
             stack.append((
-                a_neighbor, a_neighbor_neighbors - do_not_visit, do_not_visit | a_neighbor_neighbors
+                neighbor_neighbors - do_not_visit, do_not_visit | neighbor_neighbors
             ))
 
         return None
