@@ -246,16 +246,49 @@ def generateNonImprovablePaths(G, paths):
     return improvedPaths
                     
 
+def calculateNonImprovableFractions(minNodes, maxNodes, edgesKeepFunc=(lambda x: 0.5)):
+    averageFractions = []
+    averageSimplePaths = []
+    averageNonImprovablePaths = []
+
+    for node in range(minNodes, maxNodes + 1):
+        fractionNonImprovableSum = 0
+        simplePathsSum = 0
+        nonImprovablePathsSum = 0
+        
+        numTrials = 20
+
+        
+        for i in range(0, numTrials):
+            nextGraph = graphFromRandom(node, edgesKeepFunc(node), 999999999999, seed=(node + i))
+            pos = nx.kamada_kawai_layout(nextGraph)
+            
+            targets = random.sample(range(0, node), 2)
+
+            paths = generateSimplePaths(nextGraph, targets[0], targets[1])
+            nonImprovablePaths = generateNonImprovablePaths(nextGraph, paths)
+
+            fractionNonImprovableSum += (len(nonImprovablePaths) / len(paths))
+            simplePathsSum += len(paths)
+            nonImprovablePathsSum += len(nonImprovablePaths)
+
+
+        averageFractions.append(fractionNonImprovableSum / numTrials)
+        averageSimplePaths.append(simplePathsSum / numTrials)
+        averageNonImprovablePaths.append(nonImprovablePathsSum / numTrials)
+
+    return averageFractions, averageSimplePaths, averageNonImprovablePaths
+        
+
+
 
 if __name__ == "__main__":
-    
-    if len(sys.argv) > 3:
 
+    if len(sys.argv) > 3:
         G = graphFromEdgeFile(sys.argv[1])
         test_path = next(nx.all_simple_paths(G, sys.argv[2], sys.argv[3]))
 
     else:
-
         G = generateTestGraph()
         test_path = [0, 1, 2, 3, 4]
 
@@ -265,25 +298,24 @@ if __name__ == "__main__":
     print(compromised)
 
     for i in range(1):
-        randGraph = graphFromRandom(50, .03, 999999999999, seed=77)
+        randGraph = graphFromRandom(22, .25, 999999999999, seed=77)
 
         pos = nx.kamada_kawai_layout(randGraph)
 
-        paths=generateSimplePaths(randGraph, 16, 34)
+        paths=generateSimplePaths(randGraph, 18, 2)
 
-        plotGraphWithPathHighlighted(randGraph, pos=pos, paths=paths)
+        print(len(paths))
 
         updateWeightsUsingLayout(randGraph, pos)
         compromiseNodes(randGraph, 5)
 
-        print(generateNonImprovablePaths(randGraph, paths))
-        
-        print(testForCompromisedKey(randGraph, paths))
-        
-        
+        nonImprovablePaths = generateNonImprovablePaths(randGraph, paths)
+
+        print(len(nonImprovablePaths))
+
+        plotGraphWithPathHighlighted(randGraph, pos=pos, paths=nonImprovablePaths)
 
 
     plt.show()
-        
     print("Done")
         
