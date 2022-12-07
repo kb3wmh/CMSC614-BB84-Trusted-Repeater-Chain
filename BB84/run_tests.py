@@ -2,6 +2,7 @@ import csv
 from network import *
 from util import *
 from node import QNode
+import sys
 
 def test_all_vs_simple_fractions():
     outputCSVFilename = "test2.csv"
@@ -213,8 +214,26 @@ def test_security_nlt():
             
             
 if __name__ == "__main__":
+    print(sys.argv)
+
+    mode = int(sys.argv[1])
+
+    if mode == 1:
+        test_security_nonimprovable()
+
+    if mode == 2:
+        test_security_nonimprovable_sample()
+
+    if mode == 3:
+        test_security_nnt()
+
+    if mode == 4:
+        test_security_nlt()
+    
+    '''
     test_security_nonimprovable()
     test_security_nonimprovable_sample()
     test_security_nnt()
     test_security_nlt()
+    '''
     
