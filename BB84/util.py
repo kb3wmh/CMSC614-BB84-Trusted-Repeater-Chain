@@ -180,8 +180,6 @@ def node_not_taken(G, source, target, k):
     """
 
     visits = dict.fromkeys(G.nodes, 0)
-    # priority if target is a neighbor
-    visits[target] = -1
 
     def dfs():
 
@@ -216,7 +214,7 @@ def node_not_taken(G, source, target, k):
 
                     visits[node] += 1
 
-                # don't update visits for target to keep it a priority
+                # no need to update visits for target
                 return the_path + (target, )
 
             stack.append((
@@ -225,6 +223,11 @@ def node_not_taken(G, source, target, k):
             ))
 
         return None
+
+    # handle base/edge case where source is adjacent to target
+    if target in G[source]:
+
+        return True, {(source, target)}
 
     path_list = []
     for _ in range(k):
