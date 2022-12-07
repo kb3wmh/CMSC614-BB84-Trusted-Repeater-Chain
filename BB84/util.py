@@ -249,16 +249,16 @@ def node_less_traveled(G, source, target, k):
 
         return None
 
-    path_set = set()
-
-    while len(path_set) < k:
+    path_list = []
+    for _ in range(k):
 
         the_path = dfs()
 
         if the_path is None:
 
-            return False, path_set
+            return False, set(path_list)
 
-        path_set.add(the_path)
+        path_list.append(the_path)
 
-    return True, path_set
+    path_set = set(path_list)
+    return len(path_set) == k, path_set
